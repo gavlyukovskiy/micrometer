@@ -28,7 +28,7 @@ import java.net.URI;
  * @author Jon Schneider
  */
 @Aspect
-public class RestTemplateUrlTemplateCapturingAspect {
+public class RestTemplateUrlTemplateCapturing {
     @Around("execution(* org.springframework.web.client.RestOperations+.*(String, ..))")
     Object captureUrlTemplate(ProceedingJoinPoint joinPoint) throws Throwable {
         try {
