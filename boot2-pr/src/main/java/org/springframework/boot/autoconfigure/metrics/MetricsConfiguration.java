@@ -36,6 +36,7 @@ import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.boot.autoconfigure.condition.SearchStrategy;
+import org.springframework.boot.autoconfigure.metrics.web.MetricsWebfluxRequestConfiguration;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -55,6 +56,7 @@ import java.util.Collection;
 @Import({
     RecommendedMeterBinders.class,
     MetricsServletRequestConfiguration.class,
+    MetricsWebfluxRequestConfiguration.class,
     MetricsRestTemplateConfiguration.class,
 
     // supported monitoring systems

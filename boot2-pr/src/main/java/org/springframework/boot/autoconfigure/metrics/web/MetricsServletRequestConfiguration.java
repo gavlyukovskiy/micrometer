@@ -16,15 +16,15 @@
 package org.springframework.boot.autoconfigure.metrics.web;
 
 import io.micrometer.core.instrument.MeterRegistry;
-import org.springframework.boot.autoconfigure.metrics.MetricsConfigurationProperties;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnWebApplication;
+import org.springframework.boot.autoconfigure.metrics.MetricsConfigurationProperties;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.web.servlet.config.annotation.InterceptorRegistry;
-import org.springframework.web.servlet.config.annotation.WebMvcConfigurerAdapter;
+import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
 /**
  * Configures instrumentation of Spring Web MVC servlet-based request mappings.
@@ -33,9 +33,9 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurerAdapter
  * @author Jon Schneider
  */
 @Configuration
-@ConditionalOnWebApplication
+@ConditionalOnWebApplication(type = ConditionalOnWebApplication.Type.SERVLET)
 @EnableConfigurationProperties(MetricsConfigurationProperties.class)
-public class MetricsServletRequestConfiguration extends WebMvcConfigurerAdapter {
+public class MetricsServletRequestConfiguration implements WebMvcConfigurer {
     @Bean
     @ConditionalOnMissingBean(WebServletTagConfigurer.class)
     WebServletTagConfigurer webmvcTagConfigurer() {
@@ -55,7 +55,7 @@ public class MetricsServletRequestConfiguration extends WebMvcConfigurerAdapter 
     }
 
     @Configuration
-    class MetricsServletRequestInterceptorConfiguration extends WebMvcConfigurerAdapter {
+    class MetricsServletRequestInterceptorConfiguration implements WebMvcConfigurer {
         @Autowired
         MetricsHandlerInterceptor handlerInterceptor;
 
