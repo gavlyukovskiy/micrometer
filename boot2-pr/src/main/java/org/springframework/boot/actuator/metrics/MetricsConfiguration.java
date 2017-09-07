@@ -28,6 +28,7 @@ import org.springframework.boot.actuator.metrics.export.graphite.GraphiteExportC
 import org.springframework.boot.actuator.metrics.export.influx.InfluxExportConfiguration;
 import org.springframework.boot.actuator.metrics.export.jmx.JmxExportConfiguration;
 import org.springframework.boot.actuator.metrics.export.prometheus.PrometheusExportConfiguration;
+import org.springframework.boot.actuator.metrics.export.simple.SimpleExportConfiguration;
 import org.springframework.boot.actuator.metrics.scheduling.ScheduledMethodMetrics;
 import org.springframework.boot.actuator.metrics.web.MetricsRestTemplateConfiguration;
 import org.springframework.boot.actuator.metrics.web.MetricsServletRequestConfiguration;
@@ -66,7 +67,8 @@ import java.util.Collection;
     GraphiteExportConfiguration.class,
     InfluxExportConfiguration.class,
     JmxExportConfiguration.class,
-    PrometheusExportConfiguration.class
+    PrometheusExportConfiguration.class,
+    SimpleExportConfiguration.class,
 })
 class MetricsConfiguration {
     @ConditionalOnMissingBean(MeterRegistry.class)

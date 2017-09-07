@@ -1,2 +1,2 @@
 org.springframework.boot.autoconfigure.EnableAutoConfiguration=\
-org.springframework.boot.autoconfigure.metrics.MetricsConfiguration
+org.springframework.boot.actuator.metrics.MetricsConfiguration
