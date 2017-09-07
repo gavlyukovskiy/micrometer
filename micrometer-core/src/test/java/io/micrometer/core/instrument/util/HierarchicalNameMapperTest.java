@@ -55,10 +55,12 @@ class HierarchicalNameMapperTest {
 
                 @Override
                 public List<Tag> getConventionTags() {
-                    return Tags.zip("status", "200", "method", "GET");
+                    return Tags.zip("status", "200", "method", "GET",
+                        "other", "With Spaces");
+
                 }
             }
         );
-        assertThat(name).isEqualTo("httpRequests.method.GET.status.200");
+        assertThat(name).isEqualTo("httpRequests.method.GET.status.200.other.With_Spaces");
     }
 }
