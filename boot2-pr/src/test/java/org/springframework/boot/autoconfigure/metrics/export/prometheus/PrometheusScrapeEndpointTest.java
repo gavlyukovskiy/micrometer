@@ -23,17 +23,21 @@ import static org.springframework.http.HttpHeaders.CONTENT_TYPE;
  */
 @RunWith(SpringRunner.class)
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
-@TestPropertySource(properties = "metrics.useGlobalRegistry=false")
+@TestPropertySource(properties = {
+    "metrics.useGlobalRegistry=false",
+    "endpoints.prometheus.web.enabled=true"
+})
 public class PrometheusScrapeEndpointTest {
     @Autowired
     TestRestTemplate loopback;
 
     @Test
     public void scrapeHasContentTypeText004() {
-        ResponseEntity<String> response = loopback.getForEntity("/prometheus", String.class);
+        ResponseEntity<String> response = loopback.getForEntity("/application/prometheus", String.class);
         assertThat(response)
             .satisfies(r -> assertThat(r.getStatusCode().value()).isEqualTo(200))
-            .satisfies(r -> assertThat(r.getHeaders().get(CONTENT_TYPE)).isEqualTo(TextFormat.CONTENT_TYPE_004));
+            .satisfies(r -> assertThat(r.getHeaders().get(CONTENT_TYPE))
+                .hasOnlyOneElementSatisfying(type -> assertThat(type).contains("0.0.4")));
     }
 
     @SpringBootApplication(scanBasePackages = "isolated")

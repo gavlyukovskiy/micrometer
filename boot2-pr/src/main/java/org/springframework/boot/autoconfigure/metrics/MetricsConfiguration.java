@@ -81,6 +81,11 @@ class MetricsConfiguration {
         return composite;
     }
 
+    @Bean
+    public MetricsEndpoint metricsEndpoint(MeterRegistry registry) {
+        return new MetricsEndpoint(registry);
+    }
+
     @Configuration
     static class MeterRegistryConfigurationSupport {
         public MeterRegistryConfigurationSupport(MeterRegistry registry,

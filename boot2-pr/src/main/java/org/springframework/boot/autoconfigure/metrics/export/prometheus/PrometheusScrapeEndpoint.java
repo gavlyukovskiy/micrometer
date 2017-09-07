@@ -20,13 +20,10 @@ import io.prometheus.client.exporter.common.TextFormat;
 import org.springframework.boot.endpoint.Endpoint;
 import org.springframework.boot.endpoint.EndpointExposure;
 import org.springframework.boot.endpoint.ReadOperation;
-import org.springframework.http.ResponseEntity;
 
 import java.io.IOException;
 import java.io.StringWriter;
 import java.io.Writer;
-
-import static org.springframework.http.HttpHeaders.CONTENT_TYPE;
 
 /**
  * @since 2.0.0
@@ -43,14 +40,12 @@ public class PrometheusScrapeEndpoint {
         this.collectorRegistry = collectorRegistry;
     }
 
-    @ReadOperation
-    public ResponseEntity<String> scrape() {
+    @ReadOperation(produces = TextFormat.CONTENT_TYPE_004)
+    public String scrape() {
         try {
             Writer writer = new StringWriter();
             TextFormat.write004(writer, collectorRegistry.metricFamilySamples());
-            return ResponseEntity.ok()
-                    .header(CONTENT_TYPE, TextFormat.CONTENT_TYPE_004)
-                    .body(writer.toString());
+            return writer.toString();
         } catch (IOException e) {
             // This actually never happens since StringWriter::write() doesn't throw any IOException
             throw new RuntimeException("Writing metrics failed", e);
