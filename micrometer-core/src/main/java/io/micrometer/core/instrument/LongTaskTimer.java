@@ -15,8 +15,11 @@
  */
 package io.micrometer.core.instrument;
 
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 import java.util.concurrent.Callable;
+import java.util.concurrent.TimeUnit;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
 
@@ -99,14 +102,15 @@ public interface LongTaskTimer extends Meter {
      * Returns the current duration for an active task.
      *
      * @param task Id for the task to stop. This should be the value returned from {@link #start()}.
+     * @param unit The time unit to scale the returned value to.
      * @return Duration for the task in nanoseconds. A -1 value will be returned for an unknown task.
      */
-    long duration(long task);
+    double duration(long task, TimeUnit unit);
 
     /**
      * Returns the cumulative duration of all current tasks in nanoseconds.
      */
-    long duration();
+    double duration(TimeUnit unit);
 
     /**
      * Returns the current number of tasks being executed.
@@ -117,7 +121,7 @@ public interface LongTaskTimer extends Meter {
     default Iterable<Measurement> measure() {
         return Arrays.asList(
             new Measurement(() -> (double) activeTasks(), Statistic.Count),
-            new Measurement(() -> (double) duration(), Statistic.Total)
+            new Measurement(() -> duration(TimeUnit.NANOSECONDS), Statistic.Total)
         );
     }
 
@@ -126,15 +130,35 @@ public interface LongTaskTimer extends Meter {
         return Type.LongTaskTimer;
     }
 
-    interface Builder {
-        Builder tags(Iterable<Tag> tags);
+    static Builder builder(String name) {
+        return new Builder(name);
+    }
 
-        default Builder tags(String... tags) {
+    class Builder {
+        private final String name;
+        private final List<Tag> tags = new ArrayList<>();
+        private String description;
+
+        private Builder(String name) {
+            this.name = name;
+        }
+
+        public Builder tags(String... tags) {
             return tags(Tags.zip(tags));
         }
 
-        Builder description(String description);
+        public Builder tags(Iterable<Tag> tags) {
+            tags.forEach(this.tags::add);
+            return this;
+        }
 
-        LongTaskTimer create();
+        public Builder description(String description) {
+            this.description = description;
+            return this;
+        }
+
+        public LongTaskTimer register(MeterRegistry registry) {
+            return registry.more().longTaskTimer(registry.createId(name, tags, description));
+        }
     }
 }

@@ -36,12 +36,15 @@ dependencies {
     testCompile 'org.junit.jupiter:junit-jupiter-params:5.0.0-M5'
     testRuntime 'org.junit.jupiter:junit-jupiter-engine:5.0.0-M5'
 
+	testCompile "org.mockito:mockito-core:2.+"
+
     testCompile 'javax.inject:javax.inject:1'
     testCompile 'org.springframework:spring-context:4.3.9.RELEASE'
     testCompile 'com.google.inject:guice:4.1.0'
 
-    testCompile 'com.google.dagger:dagger:2.11'
-    testCompile 'com.google.dagger:dagger-compiler:2.11'
+    // Uncomment these if you are interested in testing injection with dagger in MeterRegistryInjectionTest
+//    testCompile 'com.google.dagger:dagger:2.11'
+//    testCompile 'com.google.dagger:dagger-compiler:2.11'
 
     testCompile 'org.assertj:assertj-core:3.+'
 

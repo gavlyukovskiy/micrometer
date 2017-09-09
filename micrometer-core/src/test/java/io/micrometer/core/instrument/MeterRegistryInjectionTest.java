@@ -18,18 +18,15 @@ package io.micrometer.core.instrument;
 import com.google.inject.AbstractModule;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
-import dagger.Component;
-import dagger.Module;
-import dagger.Provides;
 import io.micrometer.core.instrument.simple.SimpleMeterRegistry;
 import org.junit.jupiter.api.Test;
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
+import javax.annotation.PostConstruct;
 import javax.inject.Inject;
 
-import static io.micrometer.core.instrument.LazyMetrics.lazyCounter;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
@@ -49,20 +46,22 @@ class MeterRegistryInjectionTest {
                 .matches(r -> r.find("feature.counter").counter().isPresent());
     }
 
-    @Test
-    void injectWithDagger() {
-        DagConfiguration conf = DaggerDagConfiguration.create();
-        MyComponent component = conf.component();
-        component.performanceCriticalFeature();
-        assertThat(component.registry)
-                .isInstanceOf(SimpleMeterRegistry.class)
-                .matches(r -> r.find("feature.counter").counter().isPresent());
-    }
+//    @Test
+//    void injectWithDagger() {
+//        DagConfiguration conf = DaggerDagConfiguration.create();
+//        MyComponent component = conf.component();
+//        component.after(); // @PostConstruct is not automatically called
+//        component.performanceCriticalFeature();
+//        assertThat(component.registry)
+//                .isInstanceOf(SimpleMeterRegistry.class)
+//                .matches(r -> r.find("feature.counter").counter().isPresent());
+//    }
 
     @Test
     void injectWithGuice() {
         Injector injector = Guice.createInjector(new GuiceConfiguration());
         MyComponent component = injector.getInstance(MyComponent.class);
+        component.after(); // @PostConstruct is not automatically called
         component.performanceCriticalFeature();
         assertThat(component.registry)
                 .isInstanceOf(SimpleMeterRegistry.class)
@@ -77,18 +76,18 @@ class MeterRegistryInjectionTest {
     }
 }
 
-@Component(modules = DagConfiguration.RegistryConf.class)
-interface DagConfiguration {
-    MyComponent component();
-
-    @Module
-    class RegistryConf {
-        @Provides
-        static MeterRegistry registry() {
-            return new SimpleMeterRegistry();
-        }
-    }
-}
+//@Component(modules = DagConfiguration.RegistryConf.class)
+//interface DagConfiguration {
+//    MyComponent component();
+//
+//    @Module
+//    class RegistryConf {
+//        @Provides
+//        static MeterRegistry registry() {
+//            return new SimpleMeterRegistry();
+//        }
+//    }
+//}
 
 @Configuration
 class SpringConfiguration {
@@ -114,7 +113,12 @@ class MyComponent {
     @Inject MeterRegistry registry;
 
     // for performance-critical uses, it is best to store a meter in a field
-    Counter counter = lazyCounter(() -> registry.counter("feature.counter"));
+    Counter counter;
+
+    @PostConstruct
+    public void after() {
+        counter = registry.counter("feature.counter");
+    }
 
     void performanceCriticalFeature() {
         counter.increment();

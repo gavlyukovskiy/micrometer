@@ -49,6 +49,16 @@ class HierarchicalNameMapperTest {
                 }
 
                 @Override
+                public String getBaseUnit() {
+                    return null;
+                }
+
+                @Override
+                public String getDescription() {
+                    return null;
+                }
+
+                @Override
                 public String getConventionName() {
                     return "httpRequests";
                 }
@@ -58,6 +68,14 @@ class HierarchicalNameMapperTest {
                     return Tags.zip("status", "200", "method", "GET",
                         "other", "With Spaces");
 
+                }
+
+                @Override
+                public void setType(Meter.Type type) {
+                }
+
+                @Override
+                public void setBaseUnit(String baseUnit) {
                 }
             }
         );

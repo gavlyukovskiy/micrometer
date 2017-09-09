@@ -15,16 +15,21 @@
  */
 package io.micrometer.core.instrument.spectator;
 
+import ch.qos.logback.core.util.TimeUtil;
 import io.micrometer.core.instrument.AbstractMeter;
 import io.micrometer.core.instrument.LongTaskTimer;
 import io.micrometer.core.instrument.Meter;
 import io.micrometer.core.instrument.util.MeterEquivalence;
+import io.micrometer.core.instrument.util.TimeUtils;
+
+import java.sql.Time;
+import java.util.concurrent.TimeUnit;
 
 public class SpectatorLongTaskTimer extends AbstractMeter implements LongTaskTimer {
     private final com.netflix.spectator.api.LongTaskTimer timer;
 
-    SpectatorLongTaskTimer(Meter.Id id, String description, com.netflix.spectator.api.LongTaskTimer timer) {
-        super(id, description);
+    SpectatorLongTaskTimer(Meter.Id id, com.netflix.spectator.api.LongTaskTimer timer) {
+        super(id);
         this.timer = timer;
     }
 
@@ -39,13 +44,13 @@ public class SpectatorLongTaskTimer extends AbstractMeter implements LongTaskTim
     }
 
     @Override
-    public long duration(long task) {
-        return timer.duration(task);
+    public double duration(long task, TimeUnit unit) {
+        return TimeUtils.nanosToUnit(timer.duration(task), unit);
     }
 
     @Override
-    public long duration() {
-        return timer.duration();
+    public double duration(TimeUnit unit) {
+        return TimeUtils.nanosToUnit(timer.duration(), unit);
     }
 
     @Override
