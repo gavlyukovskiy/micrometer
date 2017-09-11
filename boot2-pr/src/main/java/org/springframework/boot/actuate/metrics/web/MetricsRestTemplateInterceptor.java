@@ -1,11 +1,11 @@
 /**
- * Copyright 2012-2017 the original author or authors.
+ * Copyright 2017 Pivotal Software, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -56,14 +56,15 @@ public class MetricsRestTemplateInterceptor implements ClientHttpRequestIntercep
             response = execution.execute(request, body);
             return response;
         } finally {
-            Timer.Builder builder = meterRegistry.timerBuilder(properties.getWeb().getClientRequestsName())
-                .tags(tagProvider.clientHttpRequestTags(request, response));
+            Timer.Builder builder = Timer.builder(properties.getWeb().getClientRequestsName())
+                .tags(tagProvider.clientHttpRequestTags(request, response))
+                .description("Timer of RestTemplate operation");
 
             if(properties.getWeb().getClientRequestPercentiles())
                 builder = builder.histogram(Histogram.percentiles());
 
             builder
-                .create()
+                .register(meterRegistry)
                 .record(System.nanoTime() - startTime, TimeUnit.NANOSECONDS);
         }
     }

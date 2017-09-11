@@ -1,5 +1,6 @@
 package org.springframework.boot.actuate.metrics.export.prometheus;
 
+import io.micrometer.core.instrument.Clock;
 import io.micrometer.core.instrument.MeterRegistry;
 import io.micrometer.prometheus.PrometheusMeterRegistry;
 import io.prometheus.client.CollectorRegistry;
@@ -49,7 +50,7 @@ public class PrometheusScrapeEndpointTest {
 
         @Bean
         public MeterRegistry registry(CollectorRegistry registry) {
-            return new PrometheusMeterRegistry(registry);
+            return new PrometheusMeterRegistry(k -> null, registry, Clock.SYSTEM);
         }
     }
 }

@@ -16,15 +16,18 @@
 package org.springframework.boot.actuate.metrics.export.prometheus;
 
 
+import io.micrometer.prometheus.PrometheusConfig;
+import org.springframework.boot.actuate.metrics.export.RegistryConfigurationProperties;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 
 /**
  * Exists solely to aid in autocompletion of Prometheus enablement in .properties and .yml.
  *
+ * @since 2.0.0
  * @author Jon Schneider
  */
 @ConfigurationProperties(prefix = "metrics.prometheus")
-public class PrometheusConfigurationProperties {
+public class PrometheusConfigurationProperties extends RegistryConfigurationProperties implements PrometheusConfig {
     private boolean enabled = true;
 
     public boolean isEnabled() {
@@ -33,5 +36,14 @@ public class PrometheusConfigurationProperties {
 
     public void setEnabled(boolean enabled) {
         this.enabled = enabled;
+    }
+
+    public void setDescriptions(Boolean descriptions) {
+        set("descriptions", descriptions);
+    }
+
+    @Override
+    public String prefix() {
+        return "metrics.prometheus";
     }
 }

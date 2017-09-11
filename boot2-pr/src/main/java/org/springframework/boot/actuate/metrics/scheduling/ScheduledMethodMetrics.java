@@ -1,11 +1,11 @@
 /**
- * Copyright 2012-2017 the original author or authors.
+ * Copyright 2017 Pivotal Software, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -18,6 +18,7 @@ package org.springframework.boot.actuate.metrics.scheduling;
 import io.micrometer.core.annotation.Timed;
 import io.micrometer.core.instrument.LongTaskTimer;
 import io.micrometer.core.instrument.MeterRegistry;
+import io.micrometer.core.instrument.Tags;
 import io.micrometer.core.instrument.Timer;
 import io.micrometer.core.instrument.stats.quantile.WindowSketchQuantiles;
 import io.micrometer.core.instrument.util.AnnotationUtils;
@@ -65,14 +66,18 @@ public class ScheduledMethodMetrics {
 
         for (Timed timed : AnnotationUtils.findTimed(method).toArray(Timed[]::new)) {
             if(timed.longTask())
-                longTaskTimer = registry.more().longTaskTimer(timed.value(), timed.extraTags());
+                longTaskTimer = registry.more().longTaskTimer(registry.createId(timed.value(), Tags.zip(timed.extraTags()),
+                    "Timer of @Scheduled long task"));
             else {
-                Timer.Builder timerBuilder = registry.timerBuilder(timed.value())
-                        .tags(timed.extraTags());
+                Timer.Builder timerBuilder = Timer.builder(timed.value())
+                        .tags(timed.extraTags())
+                        .description("Timer of @Scheduled task");
+
                 if(timed.quantiles().length > 0) {
                     timerBuilder = timerBuilder.quantiles(WindowSketchQuantiles.quantiles(timed.quantiles()).create());
                 }
-                shortTaskTimer = timerBuilder.create();
+
+                shortTaskTimer = timerBuilder.register(registry);
             }
         }
 

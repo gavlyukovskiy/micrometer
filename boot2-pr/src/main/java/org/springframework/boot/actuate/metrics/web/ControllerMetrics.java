@@ -1,11 +1,11 @@
 /**
- * Copyright 2012-2017 the original author or authors.
+ * Copyright 2017 Pivotal Software, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -20,9 +20,9 @@ import io.micrometer.core.instrument.*;
 import io.micrometer.core.instrument.stats.hist.Histogram;
 import io.micrometer.core.instrument.stats.quantile.WindowSketchQuantiles;
 import io.micrometer.core.instrument.util.AnnotationUtils;
-import org.springframework.boot.actuate.metrics.MetricsConfigurationProperties;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.springframework.boot.actuate.metrics.MetricsConfigurationProperties;
 import org.springframework.web.context.request.RequestAttributes;
 import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.method.HandlerMethod;
@@ -99,9 +99,10 @@ public class ControllerMetrics {
 
         // record Timer values
         timed(handler).forEach(t -> {
-            Timer.Builder timerBuilder = registry.timerBuilder(t.name)
+            Timer.Builder timerBuilder = Timer.builder(t.name)
                 .tags(tagConfigurer.httpRequestTags(request, response, thrown))
-                .tags(t.extraTags);
+                .tags(t.extraTags)
+                .description("Timer of servlet request");
 
             if (t.quantiles.length > 0) {
                 timerBuilder = timerBuilder.quantiles(WindowSketchQuantiles.quantiles(t.quantiles).create());
@@ -111,13 +112,13 @@ public class ControllerMetrics {
                 timerBuilder = timerBuilder.histogram(Histogram.percentilesTime());
             }
 
-            timerBuilder.create().record(endTime - startTime, TimeUnit.NANOSECONDS);
+            timerBuilder.register(registry).record(endTime - startTime, TimeUnit.NANOSECONDS);
         });
     }
 
     private LongTaskTimer longTaskTimer(TimerConfig t, HttpServletRequest request, Object handler) {
         Iterable<Tag> tags = Tags.concat(tagConfigurer.httpLongRequestTags(request, handler), t.extraTags);
-        return registry.more().longTaskTimer(t.name, tags);
+        return registry.more().longTaskTimer(registry.createId(t.name, tags, "Timer of long servlet request"));
     }
 
     private Set<TimerConfig> longTaskTimed(Object m) {

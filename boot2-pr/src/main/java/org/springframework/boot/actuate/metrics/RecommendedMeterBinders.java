@@ -17,7 +17,9 @@ package org.springframework.boot.actuate.metrics;
 
 import io.micrometer.core.instrument.binder.JvmMemoryMetrics;
 import io.micrometer.core.instrument.binder.LogbackMetrics;
+import io.micrometer.core.instrument.binder.UptimeMetrics;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
@@ -28,13 +30,21 @@ import org.springframework.context.annotation.Configuration;
 @Configuration
 class RecommendedMeterBinders {
     @Bean
+    @ConditionalOnMissingBean(JvmMemoryMetrics.class)
     JvmMemoryMetrics jvmMemoryMetrics() {
         return new JvmMemoryMetrics();
     }
 
     @Bean
+    @ConditionalOnMissingBean(LogbackMetrics.class)
     @ConditionalOnClass(name = "ch.qos.logback.classic.Logger")
     LogbackMetrics logbackMetrics() {
         return new LogbackMetrics();
+    }
+
+    @Bean
+    @ConditionalOnMissingBean(UptimeMetrics.class)
+    UptimeMetrics uptimeMetrics() {
+        return new UptimeMetrics();
     }
 }
